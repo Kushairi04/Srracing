@@ -134,6 +134,98 @@ h1 span {
   text-shadow: 0 0 12px var(--gold-glow);
 }
 
+/* ==========================================================
+   COUNTDOWN TIMER COMPONENT STYLES
+   ========================================================== */
+.countdown-wrapper {
+  background: linear-gradient(145deg, rgba(17, 20, 28, 0.95), rgba(8, 9, 12, 0.98));
+  border: 1px solid rgba(237, 28, 46, 0.4);
+  border-left: 4px solid var(--red);
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  margin: 24px 0 28px;
+  max-width: 580px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(237, 28, 46, 0.08);
+}
+.countdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.countdown-title {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.countdown-title::before {
+  content: "⚡";
+  font-size: 13px;
+}
+.countdown-deadline {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.cd-box {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cd-box::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--red);
+  opacity: 0.7;
+}
+.cd-number {
+  font-family: "Teko", sans-serif;
+  font-size: clamp(32px, 6vw, 46px);
+  line-height: 0.85;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+.cd-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: 4px;
+}
+.cd-expired {
+  padding: 14px;
+  text-align: center;
+  color: var(--red);
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .price-tag {
   display: flex;
   align-items: flex-end;
@@ -189,6 +281,31 @@ h1 span {
 .btn-yellow:hover {
   background: #ffdb4d;
   box-shadow: 0 12px 32px rgba(255, 199, 0, 0.45);
+}
+
+/* Toast Notice replacing native alert */
+.toast-notice {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: #ed1c2e;
+  color: white;
+  padding: 14px 24px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  font-weight: 700;
+  font-size: 14px;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  pointer-events: none;
+  max-width: 90vw;
+}
+.toast-notice.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
 }
 
 /* Sections */
@@ -533,6 +650,8 @@ footer b { color: #fff; font-family: "Barlow Condensed"; font-size: 24px; letter
   .pricing { grid-template-columns: 1fr; gap: 10px; }
   .panel { padding: 20px 16px; }
   .choice-grid { grid-template-columns: 1fr; }
+  .countdown-wrapper { padding: 16px; }
+  .cd-number { font-size: 28px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -542,6 +661,9 @@ footer b { color: #fff; font-family: "Barlow Condensed"; font-size: 24px; letter
 </style>
 </head>
 <body>
+
+<!-- Toast Notification Bar (Replaces native alerts) -->
+<div id="toast" class="toast-notice">⚠️ Sila lengkapkan borang tempahan.</div>
 
 <div class="top-bar">
   <span class="live-dot"></span> SPX RACING · SPEED / STYLE / BROTHERHOOD
@@ -554,6 +676,32 @@ footer b { color: #fff; font-family: "Barlow Condensed"; font-size: 24px; letter
     <p>Jersi khas untuk mereka yang hidup dengan semangat kelajuan, gaya dan persaudaraan. Pilih potongan lengan pendek atau lengan panjang dengan rekaan racing SPX eksklusif.</p>
     <div class="slogan">RIDE TOGETHER · STAY STRONG</div>
     
+    <!-- COUNTDOWN TIMER CONTAINER -->
+    <div class="countdown-wrapper">
+      <div class="countdown-header">
+        <span class="countdown-title">Masa Pre-Order Berbaki</span>
+        <span class="countdown-deadline">Tutup: 8 November 2026</span>
+      </div>
+      <div class="countdown-grid" id="heroCountdown">
+        <div class="cd-box">
+          <div class="cd-number" id="cd-days">00</div>
+          <div class="cd-label">Hari</div>
+        </div>
+        <div class="cd-box">
+          <div class="cd-number" id="cd-hours">00</div>
+          <div class="cd-label">Jam</div>
+        </div>
+        <div class="cd-box">
+          <div class="cd-number" id="cd-mins">00</div>
+          <div class="cd-label">Minit</div>
+        </div>
+        <div class="cd-box">
+          <div class="cd-number" id="cd-secs">00</div>
+          <div class="cd-label">Saat</div>
+        </div>
+      </div>
+    </div>
+
     <div class="price-tag">
       <div>
         <small>HARGA BERMULA</small>
@@ -873,6 +1021,7 @@ footer b { color: #fff; font-family: "Barlow Condensed"; font-size: 24px; letter
     <b>SPX RACING 3RD EDITION</b><br>
     SPEED · STYLE · BROTHERHOOD<br>
     Tarikh Tutup Pre-Order: <strong style="color: var(--gold);">8 / 11 / 2026</strong>
+    Kushairi Razak SPX <br>
   </div>
 </footer>
 
@@ -893,6 +1042,9 @@ footer b { color: #fff; font-family: "Barlow Condensed"; font-size: 24px; letter
 const PHONE = "60136201301";
 const BASE_PRICE = 45;
 
+// Tarikh Tutup Pre-Order: 8 November 2026 Jam 11:59:59 Malam
+const TARGET_DEADLINE = new Date("2026-11-08T23:59:59+08:00").getTime();
+
 // =========================================================================
 // INTEGRASI GOOGLE SHEETS DATABASE
 // Tampal URL Web App dari Google Apps Script anda di dalam pengikat kata ("")
@@ -905,6 +1057,45 @@ document.getElementById("refCode").textContent = "#" + refId;
 
 const $ = id => document.getElementById(id);
 const formatRM = num => "RM" + num.toLocaleString("en-MY");
+
+// Fungsi Pembantu Toast Notifikasi (Ganti alert)
+function showToast(msg) {
+  const toast = $("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3500);
+}
+
+// Logik Pemasa Countdown
+function initCountdown() {
+  function updateTimer() {
+    const now = new Date().getTime();
+    const distance = TARGET_DEADLINE - now;
+
+    if (distance < 0) {
+      const container = $("heroCountdown");
+      if (container) {
+        container.innerHTML = `<div class="cd-expired">🚨 PRE-ORDER TELAH RASMI DITUTUP 🚨</div>`;
+      }
+      return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    if ($("cd-days")) $("cd-days").textContent = String(days).padStart(2, "0");
+    if ($("cd-hours")) $("cd-hours").textContent = String(hours).padStart(2, "0");
+    if ($("cd-mins")) $("cd-mins").textContent = String(minutes).padStart(2, "0");
+    if ($("cd-secs")) $("cd-secs").textContent = String(seconds).padStart(2, "0");
+  }
+
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
 
 function getShippingCost(deliveryMode) {
   if (deliveryMode === "semenanjung") return 8;
@@ -1021,19 +1212,19 @@ $("sendBtn").addEventListener("click", () => {
   const order = calculateOrder();
 
   if (!order.customerName || order.customerName === "Tidak dinyatakan") {
-    alert("Sila masukkan Nama Pelanggan sebelum menghantar tempahan.");
+    showToast("⚠️ Sila masukkan Nama Pelanggan sebelum menghantar tempahan.");
     $("customerName").focus();
     return;
   }
 
   if (!order.customerPhone || order.customerPhone === "Tidak dinyatakan") {
-    alert("Sila masukkan Nombor Telefon WhatsApp sebelum menghantar tempahan.");
+    showToast("⚠️ Sila masukkan Nombor Telefon WhatsApp sebelum menghantar tempahan.");
     $("customerPhone").focus();
     return;
   }
 
   if (order.deliveryMode !== "self_collect" && (!order.deliveryAddress || order.deliveryAddress === "Tidak dinyatakan")) {
-    alert("Sila masukkan Alamat Pos yang lengkap.");
+    showToast("⚠️ Sila masukkan Alamat Pos yang lengkap.");
     $("deliveryAddress").focus();
     return;
   }
@@ -1091,7 +1282,9 @@ $("sendBtn").addEventListener("click", () => {
   }
 });
 
+// Mulakan pengiraan awal & countdown apabila halaman dimuatkan
 calculateOrder();
+initCountdown();
 </script>
 </body>
 </html>
