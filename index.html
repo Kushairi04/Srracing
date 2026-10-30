@@ -675,6 +675,12 @@ footer b { color: #fff; font-family: "Barlow Condensed"; font-size: 24px; letter
     <h1>SPX RACING <span>3RD EDITION</span></h1>
     <p>Jersi khas untuk mereka yang hidup dengan semangat kelajuan, gaya dan persaudaraan. Pilih potongan lengan pendek atau lengan panjang dengan rekaan racing SPX eksklusif.</p>
     <div class="slogan">RIDE TOGETHER · STAY STRONG</div>
+    <!-- Visitor Counter Display -->
+<div class="visitor-badge">
+  <span>👁️ Jumlah Pengunjung:</span>
+  <strong id="visitorCount">Loading...</strong>
+</div>
+
     
     <!-- COUNTDOWN TIMER CONTAINER -->
     <div class="countdown-wrapper">
@@ -1015,6 +1021,34 @@ footer b { color: #fff; font-family: "Barlow Condensed"; font-size: 24px; letter
   </section>
 
 </main>
+// Fungsi Kirim & Dapatkan Jumlah Pengunjung
+function initVisitorCounter() {
+  const countEl = $("visitorCount");
+  if (!countEl) return;
+
+  // Menggunakan API Counter (Nama Key: spx-racing-3rd-edition)
+  fetch("https://api.counterapi.dev/v1/spx-racing-3rd-edition/visits/up")
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.count) {
+        // Asas 1,250 angka mula (untuk social proof) + jumlah sebenar
+        const totalVisits = 1250 + data.count;
+        countEl.textContent = totalVisits.toLocaleString("en-MY") + " orang";
+      } else {
+        countEl.textContent = "1,250+ orang";
+      }
+    })
+    .catch(err => {
+      console.warn("Gagal memuatkan counter:", err);
+      // Fallback sekiranya API gagal dipanggil
+      countEl.textContent = "1,250+ orang";
+    });
+}
+
+// Panggil fungsi semasa halaman dimuatkan (letak bersama calculateOrder & initCountdown)
+calculateOrder();
+initCountdown();
+initVisitorCounter(); // <--- Tambah di sini
 
 <footer>
   <div class="wrap">
@@ -1034,6 +1068,28 @@ footer b { color: #fff; font-family: "Barlow Condensed"; font-size: 24px; letter
     </div>
     <a class="btn btn-yellow" href="#tempah" style="padding: 12px 20px; font-size: 13px;">Tempah Sekarang ↓</a>
   </div>
+
+  /* Visitor Counter Badge */
+.visitor-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-top: 10px;
+}
+.visitor-badge strong {
+  color: var(--gold);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+}
+
 </div>
 
 <<!-- Vercel Analytics -->
